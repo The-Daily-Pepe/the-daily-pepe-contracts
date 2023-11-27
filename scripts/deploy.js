@@ -39,7 +39,9 @@ async function main() {
   await articleNFT.createNewIssue(block.timestamp+20, block.timestamp+80, "ipfs://QmSi6fehR8cqEEuA7WG58dqN91ttqQ9GN35SxEJBKgN7Ss")
   const numArticles = await articleNFT.nextIssue()
   console.log("numArticles", numArticles)
-  await articleNFT.createNewIssue(1000, "99999999999999999999999999999999999999999999", "ipfs://Qmcbkg2VtkuTZGHU2idxoP3QKUHLwnvy67qvqcifSwc5dT")
+
+  //mintable forever
+  await articleNFT.createNewIssue(1000, "99999999999999999999999999999999999999999999", "ipfs://QmZWcii6aiCsV2pNupnYhTxJPeeNNPims5GrQcPWYQy73P")
   
   //mint some articles
   await articleNFT.mint(unpriviledged0.address, 1, 5)
