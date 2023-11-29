@@ -17,7 +17,7 @@ async function main() {
   articleNFT = await articleNFTFactory.deploy()
   proxyImplementation = articleNFT.target
   proxy = await proxyFactory.deploy(articleNFT.target, proxyAdmin, "0x")
-  mintController = await mintControllerFactory.deploy(proxy.target, admin, benefactor)
+  mintController = await mintControllerFactory.deploy(proxy.target, admin, benefactor, 20)
   articleNFT = await articleNFTFactory.attach(proxy.target)
   await articleNFT.initialize(admin, mintController, 1000)
 

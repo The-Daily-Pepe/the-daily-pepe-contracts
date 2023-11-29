@@ -11,13 +11,13 @@ const setupNewArticle = async (admin, articleNFT, mintController, mintPrice) => 
 }
 
 describe("MintController", () => {
-  let admin, unpriviledged0, benefactor, articleNFT, mintController
+  let admin, unpriviledged0, unpriviledged1, benefactor, articleNFT, mintController
   beforeEach(async () => {
-    [admin, unpriviledged0, benefactor] = await ethers.getSigners()
+    [admin, unpriviledged0, benefactor, unpriviledged1] = await ethers.getSigners()
     articleNFTFactory = await ethers.getContractFactory("ArticleNFT", admin)
     articleNFT = await articleNFTFactory.deploy()
     mintControllerFactory = await ethers.getContractFactory("MintController")
-    mintController = await mintControllerFactory.deploy(articleNFT, admin.address, benefactor.address)
+    mintController = await mintControllerFactory.deploy(articleNFT, admin.address, benefactor.address, 20)
     await articleNFT.initialize(admin, mintController, "1000")
   })
 
@@ -61,6 +61,49 @@ describe("MintController", () => {
         value: 2000,
       })
     ).to.be.revertedWith("incorrect_payment")
+  })
+
+  it("mintAffiliate without payment", async () => {
+    await setupNewArticle(admin, articleNFT, mintController, 1000)
+    await expect(
+      mintController.mintAffiliate(unpriviledged0, 0, 1, unpriviledged1)
+    ).to.be.revertedWith("incorrect_payment")
+  })
+
+  it("mintAffiliate with attempted overflow attack", async () => {
+    await setupNewArticle(admin, articleNFT, mintController, 1000)
+    await expect(
+      mintController.mintAffiliate(unpriviledged0, 0, maxUint256, unpriviledged1) 
+    ).to.be.revertedWith("SafeMath: multiplication overflow")
+  })
+
+  it("mintAffiliate with payment", async () => {
+    await setupNewArticle(admin, articleNFT, mintController, 1000)
+    let balanceBefore = await ethers.provider.getBalance(unpriviledged1)
+    await mintController.mintAffiliate(unpriviledged0, 0, 1, unpriviledged1, {
+      value: 1000,
+    })
+    let balanceAfter = await ethers.provider.getBalance(unpriviledged1)
+    expect(balanceAfter - balanceBefore).to.equal(50)
+  })
+
+  it("mintAffiliate with overpayment should revert", async () => {
+    await setupNewArticle(admin, articleNFT, mintController, 1000)
+    await expect(
+      mintController.connect(unpriviledged0).mintAffiliate(unpriviledged0, 0, 1, unpriviledged1, {
+        value: 2000,
+      })
+    ).to.be.revertedWith("incorrect_payment")
+  })
+
+  it("setAffiliateShareDivisor from non-admin", async () => {
+    await expect(
+      mintController.connect(unpriviledged0).setAffiliateShareDivisor(0)
+    ).to.be.revertedWith("only_admin")
+  })
+
+  it("setAffiliateShareDivisor from admin", async () => {
+    await mintController.connect(admin).setAffiliateShareDivisor(0)
   })
 
   it("setMintPrice from non-admin", async () => {
