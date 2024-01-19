@@ -2,3 +2,5 @@ node_modules
 
 artifacts/*
 cache
+scripts/deploySepolia.js
+scripts/deployForRealsies.js
