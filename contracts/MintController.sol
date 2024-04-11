@@ -10,7 +10,6 @@ import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 
 contract MintController is AccessControl, ReentrancyGuard {
   using SafeMath for uint256;
-  using Address for address;
 
   bytes4 constant ADMIN_ROLE = 0x69696969;
   mapping (uint256 => uint256) public mintPrices;
