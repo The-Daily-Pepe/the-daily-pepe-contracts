@@ -14,7 +14,7 @@ module.exports = {
     sepolia: {
       url: "https://sepolia.drpc.org",
       accounts: {
-        mnemonic: "test test test test test test test test test test test junk",
+        mnemonic: "nig nog nig nog nig nog nig nog nig nog nig nog",
         path: "m/44'/60'/0'/0",
         initialIndex: 0,
         count: 20,

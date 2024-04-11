@@ -3,9 +3,13 @@
 pragma solidity >=0.6.0 <0.8.0;
 
 import "./ERC1155.sol";
-import "openzeppelin-solidity/contracts/access/AccessControl.sol";
+import "./AccessControl.sol";
+import "./Address.sol";
+
 
 contract ArticleNFT is ERC1155, AccessControl {
+  using Address for address;
+
   event NewTokenID(uint256 indexed tokenID, string uri);
 
   struct TimeRange {
@@ -16,7 +20,7 @@ contract ArticleNFT is ERC1155, AccessControl {
   bytes4 private constant ADMIN_ROLE = 0x69696969;
   bytes4 private constant MINTER_ROLE = 0x42042069;
   mapping (uint256 => TimeRange) public IssueAvailability;
-  uint256 public nextId = 0;
+  uint256 public nextIssue = 0;
   uint256 public editWindow; //the duration for which a token's URI can be edited after it is deployed
   bool public initialized = false;
 
@@ -55,14 +59,14 @@ contract ArticleNFT is ERC1155, AccessControl {
     _setURI(tokenID, newuri);
   }
 
-  function createNewArticle(uint256 issueStart, uint256 issueEnd, string memory uri) public onlyAdmin {
+  function createNewIssue(uint256 issueStart, uint256 issueEnd, string memory uri) public onlyAdmin {
     require(issueEnd > issueStart, "invalid_availability_duration");
-    uint256 _nextId = nextId;
-    IssueAvailability[_nextId].start = issueStart;
-    IssueAvailability[_nextId].end = issueEnd;
-    _setURI(_nextId, uri);
-    emit NewTokenID(_nextId, uri);
-    nextId++;
+
+    IssueAvailability[nextIssue].start = issueStart;
+    IssueAvailability[nextIssue].end = issueEnd;
+    _setURI(nextIssue, uri);
+    emit NewTokenID(nextIssue, uri);
+    nextIssue++;
   }
 
   function mint(address account, uint256 articleId, uint256 amount) public onlyMinter {

@@ -4,7 +4,9 @@ async function main() {
   const sepoliaProvider = new hre.ethers.JsonRpcProvider('https://sepolia.drpc.org')
   const benefactorAddress = '0xf47b87217beAC168645790e887CEA643AE180654'
   const adminAddress = '0xC104f6c677e0745DA99F8EF6b081e9Fa9c546F79'
-  const admin = new hre.ethers.Wallet(/*Key is redacted, you will have to dig it up based on the adminAddress*/"" , sepoliaProvider)
+  const [admin] = await hre.ethers.getSigners()
+  // const admin = new hre.ethers.Wallet(/*Key is redacted, you will have to dig it up based on the adminAddress*/"" , sepoliaProvider)
+  console.log("admin:", admin.address)
   articleNFTFactory = await ethers.getContractFactory("ArticleNFT", admin)
   mintControllerFactory = await ethers.getContractFactory("MintController", admin)
   proxyFactory = await ethers.getContractFactory("TransparentUpgradeableProxy", admin)
@@ -17,20 +19,20 @@ async function main() {
   const articleNFTLogicAddress = '0xac554F6Af1d32abEdcc7C2e6Ec3C7E699218Afc3'
   // const articleNFT = articleNFTFactory.attach(articleNFTAddress)
   // proxyImplementation = articleNFT.target
-  // proxy = await proxyFactory.deploy(articleNFTLogicAddress, proxyAdminAddress, "0x")//0xF21D518cB523a824E7FF8eE4787D20558375BBb1
-  const proxyAddress = '0xF21D518cB523a824E7FF8eE4787D20558375BBb1'
+  // proxy = await proxyFactory.deploy(articleNFTLogicAddress, proxyAdminAddress, "0x")//0xe38ff38e956ac9aB0E7ab4DE190d3EC320172357
+  const proxyAddress = '0xe38ff38e956ac9aB0E7ab4DE190d3EC320172357'
   const proxy = proxyFactory.attach(proxyAddress)
   // mintController = await mintControllerFactory.deploy(proxy.target, admin, benefactorAddress, 20)//0x04254954e09A0805401B7827C013ceaE47fB7de4
   const mintControllerAddress = '0x04254954e09A0805401B7827C013ceaE47fB7de4'
   const mintController = mintControllerFactory.attach(mintControllerAddress)
-  articleNFT = await articleNFTFactory.attach(proxy.target)
-  await articleNFT.initialize(admin, mintController, 1000)
+  articleNFT = await articleNFTFactory.attach(proxyAddress)
+  // await articleNFT.initialize(admin, mintController, 1000)
 
   //create some articles
-  await mintController.setMintPrice(0, hre.ethers.parseEther("0.001"))
-  await mintController.setMintPrice(1, 69420n)
-  await mintController.setMintPrice(2, 42069n)
-  await mintController.setMintPrice(3, hre.ethers.parseEther("0.001"))
+  // await mintController.setMintPrice(0, hre.ethers.parseEther("0.001"))
+  // await mintController.setMintPrice(1, 69420n)
+  // await mintController.setMintPrice(2, 42069n)
+  // await mintController.setMintPrice(3, hre.ethers.parseEther("0.001"))
 
   //no longer mintable
   await articleNFT.createNewIssue(1, 1000, "ipfs://QmRbcjLvdvkspS9xesbY1Zehw5b7fiFa4yzmpchQvsZcLe")
