@@ -151,14 +151,14 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
     expect(await articleNFT.connect(unpriviledged0).isApprovedForAll(owner, operator)).to.equal(false)
   })
 
-  it("createNewIssue() from unpriviledged account", async () => {
+  it("createNewArticle() from unpriviledged account", async () => {
     await expect(
-      articleNFT.connect(unpriviledged0).createNewIssue(0, 1, "0")
+      articleNFT.connect(unpriviledged0).createNewArticle(0, 1, "0")
     ).to.be.revertedWith("only_admin")
   })
 
-  it("createNewIssue() from priviledged account", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
+  it("createNewArticle() from priviledged account", async () => {
+    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
     expect(
       await articleNFT.uri(0)
     ).to.equal("uri0")
@@ -175,7 +175,7 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("mint() from admin for expired article", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, 1, "uri0")
+    await articleNFT.connect(admin).createNewArticle(0, 1, "uri0")
     await expect(
       articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     ).to.be.revertedWith("article_unavailable")
@@ -188,7 +188,7 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("mint() from admin for fresh article", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
     //mint from minter
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     expect(
@@ -203,7 +203,7 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("mint() from non-admin", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
 
     await expect(
       articleNFT.connect(unpriviledged0).mint(unpriviledged0.address, 0, 1)
@@ -211,7 +211,7 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeTransferFrom() owner's account without permission", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
 
     await articleNFT.connect(unpriviledged0).safeTransferFrom(unpriviledged0.address, unpriviledged1.address, 0, 1, '0x00')
@@ -221,7 +221,7 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeTransferFrom() another account without permission", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
 
     await expect(
@@ -230,7 +230,7 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeTransferFrom() another account with permission", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     await articleNFT.connect(unpriviledged0).setApprovalForAll(unpriviledged1, true)
 
@@ -241,8 +241,8 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeBatchTransferFrom() owner's account without permission", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
-    await articleNFT.connect(admin).createNewIssue(1, "99999999999999999999999999999999999999999999", "uri1")
+    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(1, "99999999999999999999999999999999999999999999", "uri1")
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 1, 2)
 
@@ -256,8 +256,8 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeBatchTransferFrom() another account without permission", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
-    await articleNFT.connect(admin).createNewIssue(1, "99999999999999999999999999999999999999999999", "uri1")
+    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(1, "99999999999999999999999999999999999999999999", "uri1")
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 1, 2)
 
@@ -267,8 +267,8 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeBatchTransferFrom() another account with permission", async () => {
-    await articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
-    await articleNFT.connect(admin).createNewIssue(1, "99999999999999999999999999999999999999999999", "uri1")
+    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(1, "99999999999999999999999999999999999999999999", "uri1")
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 1, 2)
     await articleNFT.connect(unpriviledged0).setApprovalForAll(unpriviledged1, true)
@@ -285,14 +285,14 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   it("setURI() from admin account", async () => {
     //within edit window
     const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
-    await articleNFT.connect(admin).createNewIssue(block.timestamp, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(block.timestamp, "99999999999999999999999999999999999999999999", "uri0")
     await articleNFT.connect(admin).setURI(0, "newURI0")
     expect(
       await articleNFT.uri(0)
     ).to.equal("newURI0")
 
     //outside edit window
-    await articleNFT.connect(admin).createNewIssue(block.timestamp - 1001, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(block.timestamp - 1001, "99999999999999999999999999999999999999999999", "uri0")
     await expect(
       articleNFT.connect(admin).setURI(1, "newURI1")
     ).to.be.revertedWith("cannot edit URI past edit window")
@@ -300,7 +300,7 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
 
   it("setURI() from unpriviledged account", async () => {
     await expect(
-      articleNFT.connect(minter).createNewIssue(0, "99999999999999999999999999999999999999999999", "uri0")
+      articleNFT.connect(minter).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
     ).to.be.revertedWith("only_admin")
   })
 
@@ -337,12 +337,12 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
 
     //privileged functions should no longer work
     await expect(
-      articleNFT.connect(admin).createNewIssue(0, "99999999999999999999999999999999999", "uri0")
+      articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999", "uri0")
     ).to.be.revertedWith("only_admin")
 
     //should be able to call privileged functions with new admin
     await expect(
-      articleNFT.connect(newAdmin).createNewIssue(0, "99999999999999999999999999999999999", "uri0")
+      articleNFT.connect(newAdmin).createNewArticle(0, "99999999999999999999999999999999999", "uri0")
     ).not.to.be.revertedWith("only_admin")
   })
 

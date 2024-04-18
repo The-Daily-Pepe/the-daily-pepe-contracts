@@ -6,7 +6,7 @@ const adminRole = ethers.zeroPadBytes("0x69696969", 32)
 const maxUint256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
 
 const setupNewArticle = async (admin, articleNFT, mintController, mintPrice) => {
-  await articleNFT.connect(admin).createNewIssue(0, "999999999999999999999999999999999999", "uri0")
+  await articleNFT.connect(admin).createNewArticle(0, "999999999999999999999999999999999999", "uri0")
   await mintController.setMintPrice(0, mintPrice)
 }
 
