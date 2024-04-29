@@ -2,11 +2,10 @@
 
 pragma solidity ^0.7.0;
 
-import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
-import "openzeppelin-solidity/contracts/access/AccessControl.sol";
-import "openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol";
+import "./ReentrancyGuard.sol";
+import "./AccessControl.sol";
+import "./IERC721Receiver.sol";
 import "./FirstEditionArticleNFT.sol";
-import "hardhat/console.sol";
 
 contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
   bytes4 constant ADMIN_ROLE = 0x69696969;
@@ -138,4 +137,5 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
     auctionDeadlines[tokenId] = auctionDeadline;
     payoutAll();
   }
+
 }

@@ -1,7 +1,8 @@
 {
   "name": "hardhat-project",
   "dependencies": {
-    "openzeppelin-solidity": "^3.4.2"
+    "openzeppelin-solidity": "^3.4.2",
+    "viem": "^2.9.28"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",

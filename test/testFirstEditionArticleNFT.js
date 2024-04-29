@@ -5,11 +5,17 @@ const {time} = require("@nomicfoundation/hardhat-toolbox/network-helpers")
 const adminRole = ethers.zeroPadBytes("0x69696969", 32)
 
 describe("FirstEditionArticleNFT", () => {
-  let admin, minter, unpriviledged0, unpriviledged1, FirstEditionArticleNFT
+  let admin, minter, unpriviledged0, unpriviledged1, firstEditionNFT
   beforeEach(async () => {
     [admin, minter, unpriviledged0, unpriviledged1] = await ethers.getSigners()
     firstEditionNFTFactory = await ethers.getContractFactory("FirstEditionArticleNFT")
     firstEditionNFT = await firstEditionNFTFactory.deploy()
+    proxyFactory = await ethers.getContractFactory("TransparentUpgradeableProxy", admin)
+    proxyAdminFactory = await ethers.getContractFactory("ProxyAdmin", admin)
+    proxyAdmin = await proxyAdminFactory.deploy()
+    proxy = await proxyFactory.deploy(firstEditionNFT.target, proxyAdmin, "0x")
+
+    firstEditionNFT = await firstEditionNFTFactory.attach(proxy.target)
     await firstEditionNFT.initialize(admin, "100", "Daily Pepe First Edition", "DPEPE")
   })
 
