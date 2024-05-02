@@ -28,11 +28,15 @@ async function main() {
   console.log("articleNFTLogic:", articleNFTLogicAddress)
   await articleNFTFactory.deploy()
 
+  await sleep(20000)//20 seconds
+
   //firstEditionNFT logic
   nonce = await hre.ethers.provider.getTransactionCount(deployer.address)
   const firstEditionNFTLogicAddress = getContractAddress({from: deployer.address, nonce})
   console.log("firstEditionNFTLogic:", firstEditionNFTLogicAddress)
   await firstEditionNFTFactory.deploy()
+
+  await sleep(20000)//20 seconds
 
   //proxyAdmin
   nonce = await hre.ethers.provider.getTransactionCount(deployer.address)
@@ -40,17 +44,23 @@ async function main() {
   await proxyAdminFactory.deploy()
   console.log("proxyAdmin:", proxyAdminAddress)
 
+  await sleep(20000)//20 seconds
+
   //articleNFT proxy
   nonce = await hre.ethers.provider.getTransactionCount(deployer.address)
   const articleNFTProxyAddress = getContractAddress({from: deployer.address, nonce})
   await proxyFactory.deploy(articleNFTLogicAddress, proxyAdminAddress, "0x")
   console.log("articleNFT proxy:", articleNFTProxyAddress)
 
+  await sleep(20000)//20 seconds
+
   //firstEditionNFT proxy
   nonce = await hre.ethers.provider.getTransactionCount(deployer.address)
   const firstEditionNFTProxyAddress = getContractAddress({from: deployer.address, nonce})
   await proxyFactory.deploy(firstEditionNFTLogicAddress, proxyAdminAddress, "0x")
   console.log("firstEditionNFT proxy:", firstEditionNFTProxyAddress)
+
+  await sleep(20000)//20 seconds
 
   //mintController (normal articleNFT)
   nonce = await hre.ethers.provider.getTransactionCount(deployer.address)
@@ -62,6 +72,8 @@ async function main() {
     10, //1/10 of mint revenue goes to affiliate
   )
   console.log("mintController:", mintControllerAddress)
+
+  await sleep(20000)//20 seconds
 
   //auction (first edition articleNFT)
   nonce = await hre.ethers.provider.getTransactionCount(deployer.address)
@@ -76,17 +88,21 @@ async function main() {
     adminAddress,
     benefactorAddress,
   )
+
+  await sleep(20000)//20 seconds
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~deployments~~~
 
   //let one block pass so script doesn't shit itself
-  console.log("sleeping until some new blocks are mined....")
-  await sleep(30000)//30 seconds
+  console.log("done deploying, running setup...")
 
   //~~~setup~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   //set admin as owner of proxyAdmin
   const proxyAdmin = await proxyAdminFactory.attach(proxyAdminAddress)
   await proxyAdmin.transferOwnership(adminAddress)
+
+  await sleep(20000)//20 seconds
+
   const newProxyAdminAdmin = await proxyAdmin.owner()
   console.log("newProxyAdminAdmin:", newProxyAdminAdmin)
   console.log("done")
