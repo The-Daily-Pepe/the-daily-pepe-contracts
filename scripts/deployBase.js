@@ -6,7 +6,7 @@ const DAY = 86400n
 
 async function main() {
   const benefactorAddress = '0xf47b87217beAC168645790e887CEA643AE180654'
-  const adminAddress = '0x9D98e11c3898306adFFEc8297b5e9aE3FbaB76A5'
+  const adminAddress = '0x6BafDD3f3122A3188117d2FE4202f85918EC484E'
   const [deployer] = await hre.ethers.getSigners()
 
   console.log("deployer:", deployer.address)
@@ -101,10 +101,18 @@ async function main() {
   const proxyAdmin = await proxyAdminFactory.attach(proxyAdminAddress)
   await proxyAdmin.transferOwnership(adminAddress)
 
-  await sleep(20000)//20 seconds
-
   const newProxyAdminAdmin = await proxyAdmin.owner()
   console.log("newProxyAdminAdmin:", newProxyAdminAdmin)
+
+  const articleNFT = await articleNFTFactory.attach(articleNFTProxyAddress)
+  const firstEditionArticleNFT = await firstEditionNFTFactory.attach(firstEditionNFTProxyAddress)
+
+  //initialize articleNFT
+  await articleNFT.initialize(adminAddress, mintControllerAddress, MONTH)
+
+  //initialize firstEditionNFT
+  await firstEditionArticleNFT.initialize(adminAddress, auctionAddress, MONTH, "The Daily Pepe First Edition", "DPEPE")
+
   console.log("done")
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~setup~~~

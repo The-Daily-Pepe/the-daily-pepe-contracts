@@ -13,7 +13,7 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
   
   FirstEditionArticleNFT public NFTContract;
 
-  address payable private benefactor;
+  address payable public benefactor;
   
   //maps ids of auctioned tokens to their auction end times
   mapping (uint256 => uint256) public auctionDeadlines;
@@ -72,7 +72,9 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
   }
 
   function withdraw() public {
-    benefactor.transfer(address(this).balance - 1);
+    if (address(this).balance != 0) {
+      benefactor.transfer(address(this).balance-1);
+    }
     payoutAll();
   }
   
