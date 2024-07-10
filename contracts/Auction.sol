@@ -6,7 +6,6 @@ import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 import "openzeppelin-solidity/contracts/access/AccessControl.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol";
 import "./FirstEditionArticleNFT.sol";
-import "hardhat/console.sol";
 
 contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
   bytes4 constant ADMIN_ROLE = 0x69696969;
@@ -109,7 +108,7 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
     for (uint256 i = 0; i < numTokens; i++) {
       uint256 tokenId = NFTContract.tokenOfOwnerByIndex(address(this), 0);
       if (block.timestamp > auctionDeadlines[tokenId]) {
-        if (winningPayoutAddresses[tokenId] === address(0)) { //if no bid, send the token to the benefactor
+        if (winningPayoutAddresses[tokenId] == address(0)) { //if no bid, send the token to the benefactor
           NFTContract.transferFrom(address(this), benefactor, tokenId);
         } else {
           NFTContract.transferFrom(address(this), winningPayoutAddresses[tokenId], tokenId);
@@ -143,5 +142,13 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
     uint256 tokenId = NFTContract.createNewArticle(address(this), uri);
     auctionDeadlines[tokenId] = auctionDeadline;
     payoutAll();
+  }
+
+  function setMinRaisePct(uint256 pct) public onlyAdmin {
+    minRaisePct = pct;
+  }
+
+  function setMinRaiseAbs(uint256 abs) public onlyAdmin {
+    minRaiseAbs = abs;
   }
 }
