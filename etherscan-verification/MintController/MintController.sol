@@ -10,12 +10,11 @@ import "./ReentrancyGuard.sol";
 
 contract MintController is AccessControl, ReentrancyGuard {
   using SafeMath for uint256;
-  using Address for address;
 
   bytes4 constant ADMIN_ROLE = 0x69696969;
   mapping (uint256 => uint256) public mintPrices;
   ArticleNFT public nftContract;
-  address payable private benefactor;
+  address payable public benefactor;
   uint256 public affiliateShareDivisor; //the value of the mint will be divided by this number and the result will be the affiliate payment
   //0 signifies no payment
   //Ex: affiliateShareDivisor = 20. payment is 100. 100 / 20 = 5 (5% affiliate share)
@@ -63,7 +62,9 @@ contract MintController is AccessControl, ReentrancyGuard {
   }
 
   function withdraw() public {
-    benefactor.transfer(address(this).balance - 1);
+    if (address(this).balance != 0) {
+      benefactor.transfer(address(this).balance-1);
+    }
   }
 
 }

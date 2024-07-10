@@ -2,17 +2,18 @@
 
 pragma solidity ^0.7.0;
 
-import "./ReentrancyGuard.sol";
-import "./AccessControl.sol";
-import "./IERC721Receiver.sol";
+import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
+import "openzeppelin-solidity/contracts/access/AccessControl.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol";
 import "./FirstEditionArticleNFT.sol";
+import "hardhat/console.sol";
 
 contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
   bytes4 constant ADMIN_ROLE = 0x69696969;
   
   FirstEditionArticleNFT public NFTContract;
 
-  address payable private benefactor;
+  address payable public benefactor;
   
   //maps ids of auctioned tokens to their auction end times
   mapping (uint256 => uint256) public auctionDeadlines;
@@ -71,7 +72,9 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
   }
 
   function withdraw() public {
-    benefactor.transfer(address(this).balance - 1);
+    if (address(this).balance != 0) {
+      benefactor.transfer(address(this).balance-1);
+    }
     payoutAll();
   }
   
@@ -106,7 +109,11 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
     for (uint256 i = 0; i < numTokens; i++) {
       uint256 tokenId = NFTContract.tokenOfOwnerByIndex(address(this), 0);
       if (block.timestamp > auctionDeadlines[tokenId]) {
-        NFTContract.transferFrom(address(this), winningPayoutAddresses[tokenId], tokenId);
+        if (winningPayoutAddresses[tokenId] === address(0)) { //if no bid, send the token to the benefactor
+          NFTContract.transferFrom(address(this), benefactor, tokenId);
+        } else {
+          NFTContract.transferFrom(address(this), winningPayoutAddresses[tokenId], tokenId);
+        }
         numTransfers++;
 
         //make sure we don't accumulate so many tokens that
@@ -137,5 +144,4 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
     auctionDeadlines[tokenId] = auctionDeadline;
     payoutAll();
   }
-
 }

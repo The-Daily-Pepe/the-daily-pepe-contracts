@@ -11,44 +11,60 @@ async function main() {
   mintControllerFactory = await ethers.getContractFactory("MintController", admin)
   proxyFactory = await ethers.getContractFactory("TransparentUpgradeableProxy", admin)
   proxyAdminFactory = await ethers.getContractFactory("ProxyAdmin", admin)
+  process.abort()
+  proxyAdmin = await proxyAdminFactory.deploy()
+  await sleep(20000)//20 seconds
 
-  // proxyAdmin = await proxyAdminFactory.deploy()//0xFE4EC5F069441C2b8f80706DbCC75f7B61f02b01
-  const proxyAdminAddress = '0xFE4EC5F069441C2b8f80706DbCC75f7B61f02b01'
   const proxyAdmin = proxyAdminFactory.attach(proxyAdminAddress)
-  // articleNFT = await articleNFTFactory.deploy()//0xac554F6Af1d32abEdcc7C2e6Ec3C7E699218Afc3
-  const articleNFTLogicAddress = '0xac554F6Af1d32abEdcc7C2e6Ec3C7E699218Afc3'
-  // const articleNFT = articleNFTFactory.attach(articleNFTAddress)
-  // proxyImplementation = articleNFT.target
-  // proxy = await proxyFactory.deploy(articleNFTLogicAddress, proxyAdminAddress, "0x")//0xe38ff38e956ac9aB0E7ab4DE190d3EC320172357
-  const proxyAddress = '0xe38ff38e956ac9aB0E7ab4DE190d3EC320172357'
+  articleNFT = await articleNFTFactory.deploy()
+  await sleep(20000)//20 seconds
+
+  const articleNFT = articleNFTFactory.attach(articleNFTAddress)
+  proxyImplementation = articleNFT.target
+  proxy = await proxyFactory.deploy(articleNFTLogicAddress, proxyAdminAddress, "0x")
+  await sleep(20000)//20 seconds
+
   const proxy = proxyFactory.attach(proxyAddress)
-  // mintController = await mintControllerFactory.deploy(proxy.target, admin, benefactorAddress, 20)//0x04254954e09A0805401B7827C013ceaE47fB7de4
-  const mintControllerAddress = '0x04254954e09A0805401B7827C013ceaE47fB7de4'
+  mintController = await mintControllerFactory.deploy(proxy.target, admin, benefactorAddress, 20)
+  await sleep(20000)//20 seconds
+
   const mintController = mintControllerFactory.attach(mintControllerAddress)
   articleNFT = await articleNFTFactory.attach(proxyAddress)
-  // await articleNFT.initialize(admin, mintController, 1000)
+  await articleNFT.initialize(admin, mintController, 1000)
+  await sleep(20000)//20 seconds
 
-  //create some articles
-  // await mintController.setMintPrice(0, hre.ethers.parseEther("0.001"))
-  // await mintController.setMintPrice(1, 69420n)
-  // await mintController.setMintPrice(2, 42069n)
-  // await mintController.setMintPrice(3, hre.ethers.parseEther("0.001"))
+
+  // create some articles
+  await mintController.setMintPrice(0, hre.ethers.parseEther("0.001"))
+  await mintController.setMintPrice(1, 69420n)
+  await sleep(20000)//20 seconds
+
+  await mintController.setMintPrice(2, 42069n)
+  await mintController.setMintPrice(3, hre.ethers.parseEther("0.001"))
 
   //no longer mintable
-  await articleNFT.createNewIssue(1, 1000, "ipfs://QmRbcjLvdvkspS9xesbY1Zehw5b7fiFa4yzmpchQvsZcLe")
+  await articleNFT.createNewArticle(1, 1000, "ipfs://QmRbcjLvdvkspS9xesbY1Zehw5b7fiFa4yzmpchQvsZcLe")
+  await sleep(20000)//20 seconds
+
   //mintable right now and forever
-  await articleNFT.createNewIssue(1000, "99999999999999999999999999999999999999999999", "ipfs://Qmcbkg2VtkuTZGHU2idxoP3QKUHLwnvy67qvqcifSwc5dT")
+  await articleNFT.createNewArticle(1000, "99999999999999999999999999999999999999999999", "ipfs://Qmcbkg2VtkuTZGHU2idxoP3QKUHLwnvy67qvqcifSwc5dT")
+  await sleep(20000)//20 seconds
+
 
   //mintable in 20 seconds for one minute
   const block = await hre.ethers.provider.getBlock(await ethers.provider.getBlockNumber())
   console.log("block")
   console.log("bt", block.timestamp)
-  await articleNFT.createNewIssue(block.timestamp+20, block.timestamp+80, "ipfs://QmSi6fehR8cqEEuA7WG58dqN91ttqQ9GN35SxEJBKgN7Ss")
-  const numArticles = await articleNFT.nextIssue()
+  await articleNFT.createNewArticle(block.timestamp+20, block.timestamp+80, "ipfs://QmSi6fehR8cqEEuA7WG58dqN91ttqQ9GN35SxEJBKgN7Ss")
+  await sleep(20000)//20 seconds
+
+  const numArticles = await articleNFT.nextId()
   console.log("numArticles", numArticles)
 
   //mintable forever
-  await articleNFT.createNewIssue(1000, "99999999999999999999999999999999999999999999", "ipfs://QmZWcii6aiCsV2pNupnYhTxJPeeNNPims5GrQcPWYQy73P")
+  await articleNFT.createNewArticle(1000, "99999999999999999999999999999999999999999999", "ipfs://QmZWcii6aiCsV2pNupnYhTxJPeeNNPims5GrQcPWYQy73P")
+  await sleep(20000)//20 seconds
+
 
 
   console.log("---------------deployment addresses---------------")
@@ -67,3 +83,7 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

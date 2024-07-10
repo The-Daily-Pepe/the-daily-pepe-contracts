@@ -109,7 +109,11 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
     for (uint256 i = 0; i < numTokens; i++) {
       uint256 tokenId = NFTContract.tokenOfOwnerByIndex(address(this), 0);
       if (block.timestamp > auctionDeadlines[tokenId]) {
-        NFTContract.transferFrom(address(this), winningPayoutAddresses[tokenId], tokenId);
+        if (winningPayoutAddresses[tokenId] === address(0)) { //if no bid, send the token to the benefactor
+          NFTContract.transferFrom(address(this), benefactor, tokenId);
+        } else {
+          NFTContract.transferFrom(address(this), winningPayoutAddresses[tokenId], tokenId);
+        }
         numTransfers++;
 
         //make sure we don't accumulate so many tokens that

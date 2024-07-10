@@ -2,12 +2,12 @@ const hre = require("hardhat");
 
 
 async function main() {
-  const adminAddress = '0x6BafDD3f3122A3188117d2FE4202f85918EC484E'
+  const adminAddress = '0x2cfC3d91315372F4ce92D1b536811a834B1270F1'
   const [deployer] = await hre.ethers.getSigners()
   // Send 1 ether to an ens name.
 const tx = deployer.sendTransaction({
   to: adminAddress,
-  value: hre.ethers.parseEther("1.0")
+  value: hre.ethers.parseEther("0.128")
 });
 
 }
