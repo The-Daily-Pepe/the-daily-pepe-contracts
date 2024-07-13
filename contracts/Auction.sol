@@ -37,6 +37,8 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
     _;
   }
 
+  event AuctionCompleted(address indexed buyer, uint256 indexed tokenId, uint256 bid);
+
   constructor(
     address _nftAddress,
     uint256 _minAuctionDuration, 
@@ -110,8 +112,10 @@ contract Auction is AccessControl, IERC721Receiver, ReentrancyGuard {
       if (block.timestamp > auctionDeadlines[tokenId]) {
         if (winningPayoutAddresses[tokenId] == address(0)) { //if no bid, send the token to the benefactor
           NFTContract.transferFrom(address(this), benefactor, tokenId);
+          emit AuctionCompleted(benefactor, tokenId, 0);
         } else {
           NFTContract.transferFrom(address(this), winningPayoutAddresses[tokenId], tokenId);
+          emit AuctionCompleted(winningPayoutAddresses[tokenId], tokenId, winningBids[tokenId]);
         }
         numTransfers++;
 

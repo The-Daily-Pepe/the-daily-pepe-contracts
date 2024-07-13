@@ -84,7 +84,7 @@ async function main() {
     DAY, //minimum auction duration
     MONTH, //maximum auction duration
     5, //5% minimum raise
-    ethers.parseEther("0.05"), //0.05 eth absolute minimum raise
+    ethers.parseEther("0.025"), //0.025 eth absolute minimum raise
     adminAddress,
     benefactorAddress,
   )

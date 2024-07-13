@@ -11,11 +11,9 @@ contract FirstEditionArticleNFT is ERC721, AccessControl {
   bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
   bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
   bytes4 private constant _INTERFACE_ID_ERC721_ENUMERABLE = 0x780e9d63;
-
-  event NewTokenID(uint256 indexed tokenID, string uri);
-
   bytes4 private constant ADMIN_ROLE = 0x69696969;
   bytes4 private constant MINTER_ROLE = 0x42042069;
+  
   uint256 public nextId = 0;
   mapping (uint256 => uint256) public creationTimes; //maps tokenID to the block timestamp when it was created
   uint256 public editWindow; //the duration for which a token's URI can be edited after it is deployed
