@@ -22,10 +22,10 @@ module.exports = {
       },
     },
     base: {
-      url: "https://mainnet.base.org/",
+      url: "https://base-mainnet.g.alchemy.com/v2/oQeryXfWdKuMhJ_m3wIPoXxASGnOjGDd",
       accounts: {
         mnemonic: process.env.MNEMONIC,
-        path: "m/44'/60'/0'/0",
+        path: "m/420'/69'/0'/0",
         initialIndex: 0,
         count: 20,
         passphrase: "",
