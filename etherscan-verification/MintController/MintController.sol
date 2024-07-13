@@ -19,6 +19,8 @@ contract MintController is AccessControl, ReentrancyGuard {
   //0 signifies no payment
   //Ex: affiliateShareDivisor = 20. payment is 100. 100 / 20 = 5 (5% affiliate share)
 
+  event Mint(uint256 indexed tokenID, address indexed affiliate, address indexed recipient, uint256 revenue, uint256 affiliateRevenue);
+
   modifier onlyAdmin {
     require(hasRole(ADMIN_ROLE, msg.sender), "only_admin");
     _;
@@ -35,13 +37,18 @@ contract MintController is AccessControl, ReentrancyGuard {
   function mint(address destination, uint256 tokenId, uint256 amount) external payable nonReentrant {
     require(msg.value == mintPrices[tokenId].mul(amount), "incorrect_payment");
     nftContract.mint(destination, tokenId, amount);
+    emit Mint(tokenId, address(0), destination, msg.value, 0);
   }
 
   function mintAffiliate(address destination, uint256 tokenId, uint256 amount, address payable affiliate) external payable nonReentrant {
     require(msg.value == mintPrices[tokenId].mul(amount), "incorrect_payment");
     nftContract.mint(destination, tokenId, amount);
     if (affiliateShareDivisor != 0) {
-      affiliate.transfer(msg.value / affiliateShareDivisor);
+      uint256 affiliateShare = msg.value / affiliateShareDivisor;
+      affiliate.transfer(affiliateShare);
+      emit Mint(tokenId, affiliate, destination, msg.value-affiliateShare, affiliateShare);
+    } else {
+      emit Mint(tokenId, affiliate, destination, msg.value, 0);
     }
   }
 
