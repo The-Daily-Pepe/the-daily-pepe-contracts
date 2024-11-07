@@ -24,6 +24,9 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, ERC165, Context
     // id => (owner => balance)
     mapping (uint256 => mapping(address => uint256)) internal balances;
 
+    // id => supply
+    mapping (uint256 => uint256) public supply;
+
     // owner => (operator => approved)
     mapping (address => mapping(address => bool)) internal operatorApproval;
 
@@ -202,6 +205,7 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, ERC165, Context
         balances[id][account] = balances[id][account].add(amount);
         emit TransferSingle(operator, address(0), account, id, amount);
         _doSafeTransferAcceptanceCheck(operator, address(0), account, id, amount, "");
+        supply[id] += amount;
     }
 
     function _doSafeTransferAcceptanceCheck(address _operator, address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data) internal {
