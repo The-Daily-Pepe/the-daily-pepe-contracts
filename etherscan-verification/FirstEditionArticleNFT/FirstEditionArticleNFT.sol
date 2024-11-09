@@ -2,21 +2,20 @@
 
 pragma solidity ^0.7.0;
 
-import "./ERC721.sol";
-import "./AccessControl.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-solidity/contracts/access/AccessControl.sol";
+
 
 
 contract FirstEditionArticleNFT is ERC721, AccessControl {
   bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
   bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
   bytes4 private constant _INTERFACE_ID_ERC721_ENUMERABLE = 0x780e9d63;
-
-  event NewTokenID(uint256 indexed tokenID, string uri);
-
   bytes4 private constant ADMIN_ROLE = 0x69696969;
   bytes4 private constant MINTER_ROLE = 0x42042069;
+  
   uint256 public nextId = 0;
-  mapping (uint256 => uint256) public creationTimes; //maps tokenID to the block timestamp when it was created
+  mapping (uint256 => uint256) public creationTimes; //maps tokenId to the block timestamp when it was created
   uint256 public editWindow; //the duration for which a token's URI can be edited after it is deployed
   bool private initialized = false;
 
@@ -53,13 +52,17 @@ contract FirstEditionArticleNFT is ERC721, AccessControl {
     editWindow =_editWindow;
   }
 
-  function setURI(uint256 tokenID, string memory newuri) public onlyAdmin {
-    require(creationTimes[tokenID] + editWindow >= block.timestamp, "cannot edit URI past edit window");
-    _setTokenURI(tokenID, newuri);
+  function setURI(uint256 tokenId, string memory newuri) public onlyAdmin {
+    require(creationTimes[tokenId] + editWindow >= block.timestamp, "cannot edit URI past edit window");
+    _setTokenURI(tokenId, newuri);
   }
 
   function createNewArticle(address recipient, string memory uri) public onlyMinter returns (uint256 tokenId) {
     uint256 _nextId = nextId;
+    // check for re-used URI
+    if (_nextId != 0) {
+      require(keccak256(bytes(tokenURI(_nextId-1))) != keccak256(bytes(uri)), "duplicate URI");
+    }
     creationTimes[_nextId] = block.timestamp;
     _safeMint(recipient, _nextId);
     _setTokenURI(_nextId, uri);

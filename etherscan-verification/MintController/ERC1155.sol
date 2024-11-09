@@ -2,13 +2,13 @@
 
 pragma solidity ^0.7.0; //this was original solidity ^0.5.0, I changed it arbitrarliy
 
-import "./SafeMath.sol";
-import "./Address.sol";
-import "./ERC165.sol";
-import "./IERC1155MetadataURI.sol";
-import "./ERC1155Receiver.sol";
-import "./IERC1155.sol";
-import "./Context.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/utils/Address.sol";
+import "openzeppelin-solidity/contracts/introspection/ERC165.sol";
+import "openzeppelin-solidity/contracts/token/ERC1155/IERC1155MetadataURI.sol";
+import "openzeppelin-solidity/contracts/token/ERC1155/ERC1155Receiver.sol";
+import "openzeppelin-solidity/contracts/token/ERC1155/IERC1155.sol";
+import "openzeppelin-solidity/contracts/utils/Context.sol";
 
 // An implementation of core ERC1155 function. modified from enjin's github
 contract ERC1155 is IERC1155, IERC1155MetadataURI, ERC165, Context
@@ -23,6 +23,9 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, ERC165, Context
 
     // id => (owner => balance)
     mapping (uint256 => mapping(address => uint256)) internal balances;
+
+    // id => supply
+    mapping (uint256 => uint256) public supply;
 
     // owner => (operator => approved)
     mapping (address => mapping(address => bool)) internal operatorApproval;
@@ -202,6 +205,7 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, ERC165, Context
         balances[id][account] = balances[id][account].add(amount);
         emit TransferSingle(operator, address(0), account, id, amount);
         _doSafeTransferAcceptanceCheck(operator, address(0), account, id, amount, "");
+        supply[id] += amount;
     }
 
     function _doSafeTransferAcceptanceCheck(address _operator, address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data) internal {
