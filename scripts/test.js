@@ -14,11 +14,18 @@ async function main() {
   // console.log("owner:", owner)
 
     //initialize articleNFT
-    await articleNFT.initialize(adminAddress, mintControllerAddress, MONTH)
+    // await articleNFT.initialize(adminAddress, mintControllerAddress, MONTH)
 
     //initialize firstEditionNFT
-    await firstEditionArticleNFT.initialize(adminAddress, MONTH, "The Daily Pepe First Edition", "DPEPE")
-  
+    // await firstEditionArticleNFT.initialize(adminAddress, MONTH, "The Daily Pepe First Edition", "DPEPE")
+    articleNFTFactory = await ethers.getContractFactory("ArticleNFT", deployer)
+    firstEditionArticleNFTFactory = await ethers.getContractFactory("FirstEditionArticleNFT", deployer)
+    const articleNFT = await articleNFTFactory.deploy()
+    await sleep(10000)
+    const firstEditionNFT = await firstEditionArticleNFTFactory.deploy()
+    await sleep(10000)
+    console.log("articleNFT", articleNFT.target)
+    console.log("firstEditionArticleNFT", firstEditionNFT.target)
     console.log("done")
 }
 
@@ -29,3 +36,7 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
