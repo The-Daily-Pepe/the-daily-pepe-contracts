@@ -1,12 +1,16 @@
 const { expect } = require("chai")
 const { ethers } = require("hardhat")
+const { fastForwardTime } = require("./utils")
 
 const minterRole = ethers.zeroPadBytes("0x42042069", 32)
 const adminRole = ethers.zeroPadBytes("0x69696969", 32)
 const maxUint256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
 
 const setupNewArticle = async (admin, articleNFT, mintController, mintPrice) => {
-  await articleNFT.connect(admin).createNewArticle(0, "999999999999999999999999999999999999", "uri0")
+  const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+  const startTime = block.timestamp+10
+  await articleNFT.connect(admin).createNewArticle(startTime, "999999999999999999999999999999999999", "uri0")
+  await fastForwardTime(11)
   await mintController.setMintPrice(0, mintPrice)
 }
 

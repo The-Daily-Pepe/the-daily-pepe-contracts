@@ -3,6 +3,7 @@ const { ethers } = require("hardhat")
 const {time} = require("@nomicfoundation/hardhat-toolbox/network-helpers")
 
 const adminRole = ethers.zeroPadBytes("0x69696969", 32)
+const minterRole = ethers.zeroPadBytes("0x42042069", 32)
 
 describe("FirstEditionArticleNFT", () => {
   let admin, minter, unpriviledged0, unpriviledged1, firstEditionNFT
@@ -16,12 +17,12 @@ describe("FirstEditionArticleNFT", () => {
     proxy = await proxyFactory.deploy(firstEditionNFT.target, proxyAdmin, "0x")
 
     firstEditionNFT = await firstEditionNFTFactory.attach(proxy.target)
-    await firstEditionNFT.initialize(admin, "100", "Daily Pepe First Edition", "DPEPE")
+    await firstEditionNFT.initialize(admin, minter, "100", "Daily Pepe First Edition", "DPEPE")
   })
 
   it("should not be able to call initialize multiple times", async () => {
     await expect(
-      firstEditionNFT.initialize(admin, "100", "Daily Pepe First Edition", "DPEPE")
+      firstEditionNFT.initialize(admin, minter, "100", "Daily Pepe First Edition", "DPEPE")
     ).to.be.revertedWith("no_re-init")
   })
 
@@ -58,23 +59,25 @@ describe("FirstEditionArticleNFT", () => {
   it("createNewArticle from unpriviledged account", async () => {
     await expect(
       firstEditionNFT.connect(unpriviledged0).createNewArticle(admin.address, "420")
-    ).to.be.revertedWith("only_admin")
+    ).to.be.revertedWith("only_minter")
   })
 
   it("should be able to change the admin role", async () => {
     const newAdmin = unpriviledged0
     await firstEditionNFT.connect(admin).grantRole(adminRole, newAdmin)
+    await firstEditionNFT.connect(admin).grantRole(minterRole, newAdmin)
+    await firstEditionNFT.connect(admin).revokeRole(minterRole, admin)
     await firstEditionNFT.connect(admin).revokeRole(adminRole, admin)
 
     //privileged functions should no longer work
     await expect(
       firstEditionNFT.connect(admin).createNewArticle(admin.address, "420")
-    ).to.be.revertedWith("only_admin")
+    ).to.be.revertedWith("only_minter")
 
     //should be able to call privileged functions with new admin
     await expect(
       firstEditionNFT.connect(newAdmin).createNewArticle(admin.address, "420")
-    ).not.to.be.revertedWith("only_admin")
+    ).not.to.be.revertedWith("only_minter")
   })
 
   it("should not be able to revoke or add the admin role from an unprivileged account", async () => {
@@ -142,5 +145,12 @@ describe("FirstEditionArticleNFT", () => {
     await expect(
       firstEditionNFT.connect(unpriviledged0).setURI(0, "newURI")
     ).to.be.revertedWith("only_admin")
+  })
+
+  it("should not be able to deploy an NFT with the same URI as the previous NFT", async () => {
+    await firstEditionNFT.connect(admin).createNewArticle(admin.address, "uri0")
+    await expect(
+      firstEditionNFT.connect(admin).createNewArticle(admin.address, "uri0")
+    ).to.be.revertedWith("duplicate URI")
   })
 })

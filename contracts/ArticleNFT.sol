@@ -52,11 +52,11 @@ contract ArticleNFT is ERC1155, AccessControl {
 
   function createNewArticle(uint256 issueStart, uint256 issueEnd, string memory uri) public onlyAdmin {
     require(issueEnd > issueStart, "invalid_availability_duration");
+    require(issueStart >= block.timestamp, "start_time_less_than_block_time");
     uint256 _nextId = nextId;
     // check for re-used URI
     if (_nextId != 0) {
-      require(uris[_nextId-1] != uri, "duplicate URI")
-    }
+require(keccak256(bytes(uris[_nextId-1])) != keccak256(bytes(uri)), "duplicate_URI");    }
     issueAvailability[_nextId].start = issueStart;
     issueAvailability[_nextId].end = issueEnd;
     _setURI(_nextId, uri);
@@ -82,11 +82,11 @@ contract ArticleNFT is ERC1155, AccessControl {
 
   function setIssueAvailability(uint256 start, uint256 end, uint256 tokenId) public onlyAdmin {
     require(inEditWindow(tokenId), "cannot edit article past edit window");
-    require(issueEnd > issueStart, "invalid_availability_duration");
+    require(end > start, "invalid_availability_duration");
     //reducing the start time past the block timestamp could create errors that cannot be fixed because the start time affects the edit window
-    require(start >= block.timestamp, "cannot reduce auction start time past the block timestamp")
+    require(start >= block.timestamp, "cannot reduce auction start time past the block timestamp");
 
-    issueAvailability[tokenId].start = issueStart;
-    issueAvailability[tokenId].end = issueEnd;
+    issueAvailability[tokenId].start = start;
+    issueAvailability[tokenId].end = end;
   }
 }

@@ -1,5 +1,6 @@
 const { expect } = require("chai")
 const { ethers } = require("hardhat")
+const { fastForwardTime } = require("./utils")
 
 
 describe("transparent upgradeable proxy with proxy admin is configured correctly", () => {
@@ -158,7 +159,9 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("createNewArticle() from priviledged account", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
+    await fastForwardTime(11)
     expect(
       await articleNFT.uri(0)
     ).to.equal("uri0")
@@ -175,7 +178,9 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("mint() from admin for expired article", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, 1, "uri0")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, block.timestamp+100, "uri0")
+    await fastForwardTime(200)
     await expect(
       articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     ).to.be.revertedWith("article_unavailable")
@@ -188,7 +193,9 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("mint() from admin for fresh article", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
+    await fastForwardTime(200)
     //mint from minter
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     expect(
@@ -203,7 +210,9 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("mint() from non-admin", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
+    await fastForwardTime(11)
 
     await expect(
       articleNFT.connect(unpriviledged0).mint(unpriviledged0.address, 0, 1)
@@ -211,7 +220,9 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeTransferFrom() owner's account without permission", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
+    await fastForwardTime(11)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
 
     await articleNFT.connect(unpriviledged0).safeTransferFrom(unpriviledged0.address, unpriviledged1.address, 0, 1, '0x00')
@@ -221,7 +232,9 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeTransferFrom() another account without permission", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
+    await fastForwardTime(11)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
 
     await expect(
@@ -230,7 +243,9 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeTransferFrom() another account with permission", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
+    await fastForwardTime(11)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     await articleNFT.connect(unpriviledged0).setApprovalForAll(unpriviledged1, true)
 
@@ -241,8 +256,10 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeBatchTransferFrom() owner's account without permission", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
-    await articleNFT.connect(admin).createNewArticle(1, "99999999999999999999999999999999999999999999", "uri1")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri1")
+    await fastForwardTime(11)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 1, 2)
 
@@ -256,8 +273,11 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeBatchTransferFrom() another account without permission", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
-    await articleNFT.connect(admin).createNewArticle(1, "99999999999999999999999999999999999999999999", "uri1")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri1")
+    await fastForwardTime(11)
+
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 1, 2)
 
@@ -267,8 +287,10 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   })
 
   it("safeBatchTransferFrom() another account with permission", async () => {
-    await articleNFT.connect(admin).createNewArticle(0, "99999999999999999999999999999999999999999999", "uri0")
-    await articleNFT.connect(admin).createNewArticle(1, "99999999999999999999999999999999999999999999", "uri1")
+    const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri1")
+    await fastForwardTime(11)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 0, 1)
     await articleNFT.connect(minter).mint(unpriviledged0.address, 1, 2)
     await articleNFT.connect(unpriviledged0).setApprovalForAll(unpriviledged1, true)
@@ -285,16 +307,16 @@ describe("upgradeable proxy with proxy admin - ArticleNFT functionality", () => 
   it("setURI() from admin account", async () => {
     //within edit window
     const block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
-    await articleNFT.connect(admin).createNewArticle(block.timestamp, "99999999999999999999999999999999999999999999", "uri0")
+    await articleNFT.connect(admin).createNewArticle(block.timestamp+10, "99999999999999999999999999999999999999999999", "uri0")
     await articleNFT.connect(admin).setURI(0, "newURI0")
     expect(
       await articleNFT.uri(0)
     ).to.equal("newURI0")
 
     //outside edit window
-    await articleNFT.connect(admin).createNewArticle(block.timestamp - 1001, "99999999999999999999999999999999999999999999", "uri0")
+    fastForwardTime(100000)
     await expect(
-      articleNFT.connect(admin).setURI(1, "newURI1")
+      articleNFT.connect(admin).setURI(0, "newURI1")
     ).to.be.revertedWith("cannot edit URI past edit window")
   })
 

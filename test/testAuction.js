@@ -6,14 +6,14 @@ const adminRole = ethers.zeroPadBytes("0x69696969", 32)
 const MONTH = 2419200n;
 
 describe("Auction for ERC721 NFT", () => {
-  let admin, unpriviledged0, unpriviledged1, benefactor, auction, firstEditionNFT
+  let admin, unpriviledged0, unpriviledged1, benefactor, auction, firstEditionNFT, minter
   beforeEach(async () => {
-    [admin, unpriviledged0, unpriviledged1, benefactor] = await ethers.getSigners()
+    [admin, unpriviledged0, unpriviledged1, benefactor, minter] = await ethers.getSigners()
     auctionFactory = await ethers.getContractFactory("Auction")
     firstEditionNFTFactory = await ethers.getContractFactory("FirstEditionArticleNFT")
     firstEditionNFT = await firstEditionNFTFactory.deploy()
     auction = await auctionFactory.deploy(firstEditionNFT.target, "100", MONTH, "5", ethers.parseEther("0.01"), admin.address, benefactor.address)
-    await firstEditionNFT.initialize(auction.target, 100, "Daily Pepe First Edition", "DPEPE")
+    await firstEditionNFT.initialize(auction.target, minter, 100, "Daily Pepe First Edition", "DPEPE")
   })
 
   it("constructor should set everything correctly", async () => {
@@ -117,7 +117,7 @@ describe("Auction for ERC721 NFT", () => {
   it("payout all should payout 10 tokens max to the correct accounts", async () => {
     //load 100 complete auctions
     for(let i = 0; i < 11; i++) {
-      await auction.connect(admin).createTokenAndStartAuction("420", await time.latest()+1000)
+      await auction.connect(admin).createTokenAndStartAuction((i+100).toString(), await time.latest()+1000)
       await auction.connect(unpriviledged0).bid(i, unpriviledged1, {value: ethers.parseEther("1")})
     }
     await time.increase(1001)
@@ -132,7 +132,7 @@ describe("Auction for ERC721 NFT", () => {
 
     //should not payout ongoing auctions
     for(let i = 11; i < 13; i++) {
-      await auction.connect(admin).createTokenAndStartAuction("420", await time.latest()+1000)
+      await auction.connect(admin).createTokenAndStartAuction((i+1000).toString(), await time.latest()+1000)
       await auction.connect(unpriviledged0).bid(i, unpriviledged1, {value: ethers.parseEther("1")})
     }
 

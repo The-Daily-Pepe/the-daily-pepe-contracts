@@ -61,7 +61,7 @@ contract FirstEditionArticleNFT is ERC721, AccessControl {
     uint256 _nextId = nextId;
     // check for re-used URI
     if (_nextId != 0) {
-      require(uris[_nextId-1] != uri, "duplicate URI")
+      require(keccak256(bytes(tokenURI(_nextId-1))) != keccak256(bytes(uri)), "duplicate URI");
     }
     creationTimes[_nextId] = block.timestamp;
     _safeMint(recipient, _nextId);
