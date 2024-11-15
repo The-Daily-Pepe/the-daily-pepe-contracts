@@ -5,6 +5,9 @@ const proxyAdminAddress = "0x10B64B9c21E3e745c002e5cc81D28F84f406E09b"
 const adminAddress = ""
 const mintControllerAddress = ""
 
+// articleNFT logic 0x4e4a9B940934b4F41F2B716b7D2D803D40A21912
+// firstEditionArticleNFT logic 0x4EA44064738468Cb5DE5a5af175eb8398f913883
+
 async function main() {
   const [deployer] = await hre.ethers.getSigners()
   console.log("deployer", deployer.address)

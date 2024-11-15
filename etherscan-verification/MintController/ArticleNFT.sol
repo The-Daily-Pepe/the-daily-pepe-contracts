@@ -3,7 +3,7 @@
 pragma solidity >=0.6.0 <0.8.0;
 
 import "./ERC1155.sol";
-import "openzeppelin-solidity/contracts/access/AccessControl.sol";
+import "./AccessControl.sol";
 
 contract ArticleNFT is ERC1155, AccessControl {
   event NewTokenID(uint256 indexed tokenId, string uri);
